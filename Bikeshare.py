@@ -20,7 +20,7 @@ def get_filters():
     cities='chicago','new york city','washington','all'
     months='january','february','march','april','may','june','all'
     days='monday','tuesday','wednesday','thursday','fridays','saturday','sunday','all'
-    
+
     while True:
         try:
             print('\nAvailable Cities are: {}\nChoose a city to explore or ALL to explore all the cities combined:'.format(cities))
@@ -33,9 +33,10 @@ def get_filters():
                 continue
         except Exception as e:
             print('\nException occured: {}\n'.format(e))
-            
+
     while True:
         # get user input for month (all, january, february, ... , june)
+        #this is used to decide month for analysis
         try:
             print('\nGreat!!! Now select a specific month to analyse or ALL to analyse all the months combined.\nAvailable months are {}'.format(months))
             month=(input()).lower()
@@ -50,6 +51,7 @@ def get_filters():
             continue
     while True:
         # get user input for day of week (all, monday, tuesday, ... sunday)
+        # this is used to decide on day to analyse
         try:
             print('Finally!!! Enter day of week to analyse or select ALL to analyse all the days of the week combined.\nDays of week are {}'.format(days))
             day=(input()).lower()
@@ -60,7 +62,7 @@ def get_filters():
                 print('\n{} is not an available day of week.\nSelect from available days of week listed above'.format(city))
                 continue
         except Exception as e:
-            print('Exception occured: {}\nEnter correct value'.format(e))   
+            print('Exception occured: {}\nEnter correct value'.format(e))
 
     print('-'*40)
     return city,month,day
@@ -81,7 +83,7 @@ def load_data(city, month, day):
         data1=pd.read_csv('chicago.csv')
         data2=pd.read_csv('new_york_city.csv')
         data3=pd.read_csv('washington.csv')
-        
+
         bd=data1.append(data2, ignore_index=True)
         df=bd.append(data3,ignore_index=True)
     else:
@@ -89,21 +91,22 @@ def load_data(city, month, day):
         df=pd.read_csv(CITY_DATA[city])
     df=df.fillna(0)
     #convert start time column into datetime
+    #this makes analysis easier
     df['Start Time']=pd.to_datetime(df['Start Time'])
-    
+
     #extract month and day of week from start time to create new column
     df['month']=df['Start Time'].dt.month
     df['day_of_week']=df['Start Time'].dt.weekday_name
-    
+
     if month != 'all':
         months=['january', 'february', 'march', 'april', 'may', 'june']
         imonth=months.index(month)+1
-        
+
         df=df[df['month']==imonth]
-              
+
     if day != 'all':
         df=df[df['day_of_week']==day.title()]
-       
+
     return df
 
 
@@ -122,18 +125,18 @@ def time_stats(df):
     maxm=max(count)
     months=['january', 'february', 'march', 'april', 'may', 'june']
     print('\nMost common month is: {}\n'.format(months[maxm-1]))
-    
+
     # display the most common day of week
     week=df['day_of_week']
     maxw=week.mode().values
     print('\nMost common week is: {}\n'.format(maxw))
-        
+
     # display the most common start hour
     df['hour']=df['Start Time'].dt.hour
     hr=df['hour']
     maxh=hr.mode().values
-    print('\nMost common start hour: {}\n'.format(maxh))    
-    
+    print('\nMost common start hour: {}\n'.format(maxh))
+
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
 
@@ -148,18 +151,18 @@ def station_stats(df):
     ss=df['Start Station']
     maxss=ss.mode().values
     print('\nThe commonly used start station is: {}\n'.format(maxss))
-        
+
     # display most commonly used end station
     es=df['End Station']
     maxes=es.mode().values
     print('\nThe commonly used end station is: {}\n'.format(maxes))
-        
+
     # display most frequent combination of start station and end station trip
     df['Start stop and end station']=df['Start Station']+' to '+df['End Station']
     sses=df['Start stop and end station']
     maxsses=sses.mode().values
     print('\nStart stop and end station: {}\n'.format(maxsses))
-    
+
 
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
@@ -194,7 +197,7 @@ def user_stats(df,city):
     for i in ut:
         countut[i]=countut.get(i,0)+1
     print('\nDisplaying count of user types: {}\n'.format(countut))
-    
+
     # Display counts of gender
     try:
         g=df['Gender']
@@ -217,13 +220,13 @@ def user_stats(df,city):
 
         recent=year.max()
         print('Most recent year of birth is {}\n'.format(recent))
-        
+
         common=year.mode().values
         print('Most common year of birth is {}\n'.format(common))
     except Exception as e:
         print('{} information is not available for {}'.format(e,city))
-    
-    
+
+
     n=5
     while True:
         print('\nDo you want to see Raw data? \n Enter Yes or No?')
@@ -240,7 +243,7 @@ def user_stats(df,city):
                     continue
                 elif response2 == 'no':
                     break
-                else:            
+                else:
                     print('{} is invalid response. Choose Yes or No\n'.format(response2))
                     continue
             break
@@ -249,8 +252,8 @@ def user_stats(df,city):
         else:
             print('{} is invalid response. Choose Yes or No\n'.format(response))
             continue
-            
-            
+
+
     print("\nThis took %s seconds." % (time.time() - start_time))
     print('-'*40)
 
